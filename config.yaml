@@ -1,0 +1,24 @@
+name: "iPerf3 Server"
+description: "Network performance testing server using iPerf3"
+version: "1.0.0"
+slug: "iperf3_server"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: services
+ports:
+  5201/tcp: 5201
+  5201/udp: 5201
+ports_description:
+  5201/tcp: "iPerf3 TCP port"
+  5201/udp: "iPerf3 UDP port"
+options:
+  port: 5201
+  verbose: false
+schema:
+  port: int
+  verbose: bool
