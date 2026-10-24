@@ -56,6 +56,20 @@ export class HomeAssistant {
       throw err;
     }
   }
+
+  /** Host name of Home Assistant's own address on the home network (internal URL, else external), or null. */
+  async internalHost() {
+    if (!this.enabled) return null;
+    const { internal_url: internal, external_url: external } = await this.request('GET', '/api/config');
+    for (const url of [internal, external]) {
+      try {
+        if (url) return new URL(url).hostname;
+      } catch {
+        // not a URL: try the next one
+      }
+    }
+    return null;
+  }
 }
 
 /** HA connection from the environment: the Supervisor inside the add-on, else HA_URL/HA_TOKEN. */

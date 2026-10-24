@@ -2,3 +2,5 @@ node_modules/
 # adb keys must never be committed
 *.pem
 .devdata/
+# except the test-only certificates (self-signed for *.test names, trusted nowhere)
+!tvbox-remote/test/fixtures/*.pem

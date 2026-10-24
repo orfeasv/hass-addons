@@ -302,4 +302,19 @@ $('type').addEventListener('submit', async (event) => {
   }
 });
 
+// "Install as an app": Chrome installs only from the https address with Home Assistant's certificate
+async function showInstallLink() {
+  const standalone = matchMedia('(display-mode: standalone)').matches;
+  try {
+    const { installUrl } = await api('GET', 'api/status');
+    if (!installUrl || standalone || location.href.startsWith(installUrl)) return;
+    const link = $('install');
+    link.href = installUrl;
+    link.hidden = false;
+  } catch {
+    // no link; the remote itself still works
+  }
+}
+
 refresh();
+showInstallLink();

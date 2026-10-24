@@ -50,8 +50,8 @@ export class Boxes {
     this.boxes = new Map();
   }
 
-  /** Loads saved boxes; a configured host is added when the list is empty. */
-  load(defaultHost, defaultPort) {
+  /** Loads the saved boxes. */
+  load() {
     let saved = [];
     try {
       saved = JSON.parse(readFileSync(this.file, 'utf8'));
@@ -63,7 +63,6 @@ export class Boxes {
       const record = normalizeRecord(raw);
       if (record.links.length) this.attach(record);
     }
-    if (this.boxes.size === 0 && defaultHost && HOST_RE.test(defaultHost)) this.add({ host: defaultHost, port: defaultPort });
   }
 
   attach(record) {

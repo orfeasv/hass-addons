@@ -33,6 +33,7 @@ Remote control for Android TV boxes and TVs over authenticated adb, in the sideb
 - Several boxes, picked with one tap; finds them on the network
 - Uses Ethernet or Wi-Fi, whichever is up, and finds a box again after DHCP moves it
 - Android TV Remote for Google TV / Android TV devices paired in Home Assistant, with adb as fallback
+- Installable as an app (Chrome) over https with Home Assistant's certificate
 - API for dashboard buttons, scripts and automations
 
 [Documentation →](./tvbox-remote/DOCS.md)

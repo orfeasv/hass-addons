@@ -7,7 +7,7 @@
   <title>TV Box</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.png">
-  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="remote.css">
 </head>
 <body>
@@ -93,6 +93,9 @@
         <button type="submit">Send</button>
       </form>
     </section>
+
+    <!-- Shown when the https address for installing it as an app is known and this isn't it -->
+    <a id="install" class="install" hidden target="_blank" rel="noopener">Install as an app</a>
 
     <p id="toast" class="toast" role="alert" hidden></p>
   </main>

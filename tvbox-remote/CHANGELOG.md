@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Install as an app: optional https on port 3401 with Home Assistant's certificate (`ssl`, `certfile`,
+  `keyfile`), reloaded when renewed; the install address is worked out from Home Assistant's host name and
+  the certificate, shown in the log and as a link on the page
+- App manifest with 192 and 512 px icons
+- Removed the `host` option: boxes are added on the remote page
+
 ## 0.2.0
 
 - Android TV Remote: a box can be linked to its pairing in Home Assistant's Android TV Remote integration;

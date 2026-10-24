@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { setImmediate as tick } from 'node:timers/promises';
 import { test } from 'node:test';
 import { createApp } from '../src/app.js';
@@ -40,14 +40,16 @@ test('boxes are saved, de-duplicated, renamed and removed', async () => {
   assert.throws(() => boxes.add({ host: 'bad host;' }), RangeError);
 });
 
-test('a configured host seeds an empty list only; old single-host files still load', async () => {
+test('saved boxes load again, also from the old single-host format', async () => {
   const boxes = makeBoxes();
-  boxes.load('10.0.0.5', 5555);
-  assert.deepEqual(boxes.list().map((b) => b.host), ['10.0.0.5']);
+  writeFileSync(boxes.file, JSON.stringify([{ id: 'a1', name: 'Old', host: '10.0.0.5', port: 5555 }]));
+  boxes.load();
+  assert.deepEqual(boxes.list().map((b) => [b.name, b.host]), [['Old', '10.0.0.5']]);
+  await tick();
   const again = makeBoxes();
   again.file = boxes.file;
-  again.load('10.0.0.6', 5555);
-  assert.deepEqual(again.list().map((b) => b.host), ['10.0.0.5']);
+  again.load();
+  assert.deepEqual(again.list().map((b) => [b.id, b.serial]), [['a1', 'AAA']]); // identified and saved meanwhile
 });
 
 test('API: add, list, press keys on the chosen box, rename, remove', async () => {

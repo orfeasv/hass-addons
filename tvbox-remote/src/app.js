@@ -7,9 +7,10 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 
 
 /**
  * @param {{config: {publicDir: string, version: string}, boxes: import('./boxes.js').Boxes, publicKey: string,
- *   scan: () => Promise<{host: string, port: number, adb: string, model?: string}[]>}} deps
+ *   scan: () => Promise<{host: string, port: number, adb: string, model?: string}[]>, install?: {url: string|null}}} deps
+ * install.url: the https address Chrome can install the app from, once known
  */
-export function createApp({ config, boxes, publicKey, scan }) {
+export function createApp({ config, boxes, publicKey, scan, install = { url: null } }) {
   let scanning = null; // one scan at a time; callers during a scan share its result
 
   const send = (res, status, body, type = 'application/json') => {
@@ -56,7 +57,7 @@ export function createApp({ config, boxes, publicKey, scan }) {
     const m = route.match(/^\/api\/boxes\/([a-f0-9]+)(?:\/(key|text)(?:\/([a-z0-9_]+))?)?$/);
 
     if (req.method === 'GET' && route === '/api/status') {
-      return send(res, 200, { version: config.version, keys: Object.keys(KEYS), publicKey });
+      return send(res, 200, { version: config.version, keys: Object.keys(KEYS), publicKey, installUrl: install.url });
     }
     if (req.method === 'GET' && route === '/api/boxes') return send(res, 200, { boxes: boxes.list() });
     if (req.method === 'POST' && route === '/api/boxes') {

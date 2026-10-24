@@ -38,14 +38,28 @@ Devices running Android TV or Google TV also speak the Android TV Remote protoco
 
 Keys for that box then go out as `remote.send_command` through Home Assistant's API (`homeassistant_api: true`). When the entity is unavailable or a call fails, the add-on uses adb for that key, so the box keeps working. Typing always uses adb. The status line shows "Keys via Android TV Remote" while that path is in use.
 
+## Install as an app
+
+The remote works in the Home Assistant app from the sidebar. To have it as its own app on a phone or PC, Chrome needs a secure (https) address with a trusted certificate. If Home Assistant already has one for your own domain (e.g. Let's Encrypt, in its `ssl` folder), the add-on can use it:
+
+1. In the add-on's **Configuration** tab, turn on **ssl**. `certfile` and `keyfile` are the certificate's files in the `ssl` folder (`fullchain.pem` and `privkey.pem` by default). Restart the add-on.
+2. Make your domain point to Home Assistant's address on your home network, e.g. with a DNS rewrite in your router or AdGuard Home (`ha.example.com` → `192.168.1.10`).
+3. Open the remote page: an **Install as an app** link at the bottom opens the https address. In Chrome choose ⋮ → **Install app** (on iPhone, Safari's Share → **Add to Home Screen**).
+
+The add-on works the install address out by itself: Home Assistant's own host name (its internal URL, else its external one) when the certificate covers it, else the first name the certificate lists. The add-on log shows it on start ("Install: https://…:3401/"). A renewed certificate is picked up by itself.
+
+Don't forward port 3401 (or 3400) on your router: the remote has no password of its own, so keep it on your home network.
+
 ## Options
 
 | Option | Default | Meaning |
 |---|---|---|
-| `host` | (none) | Optional: a box to add on first start. More are added on the remote page. |
-| `port` | `5555` | adb port, for that box and for the network scan |
+| `port` | `5555` | adb port, for new boxes and the network scan |
+| `ssl` | off | Also serve the remote over https on port 3401, with Home Assistant's certificate (see "Install as an app") |
+| `certfile` | `fullchain.pem` | The certificate's file in Home Assistant's `ssl` folder |
+| `keyfile` | `privkey.pem` | Its private key's file there |
 
-The add-on uses the host network (`host_network: true`): the scan needs the real home network, and the page and API are also reachable at `http://<home-assistant>:3400/`.
+The add-on uses the host network (`host_network: true`): the scan needs the real home network, and the page and API are also reachable at `http://<home-assistant>:3400/` (and `https://…:3401/` with ssl). Boxes are added on the remote page.
 
 ## Buttons in dashboards, scripts and automations
 
