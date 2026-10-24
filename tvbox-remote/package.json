@@ -1,0 +1,16 @@
+{
+  "name": "tvbox-remote",
+  "version": "0.1.0",
+  "description": "Remote control for an Android TV box over adb, packaged as a Home Assistant add-on",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  }
+}

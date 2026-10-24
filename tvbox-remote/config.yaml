@@ -1,0 +1,26 @@
+name: "TV Box Remote"
+description: "Remote control for Android TV boxes and TVs over authenticated adb: D-pad, Home, Back, volume, sleep and typing, in the sidebar and as an API"
+version: "0.1.0"
+slug: "tvbox_remote"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: application
+boot: auto
+ingress: true
+ingress_port: 3400
+# host network: the box scan needs the real LAN, not the add-on network; the page and API are also on <host>:3400
+host_network: true
+panel_icon: "mdi:remote-tv"
+panel_title: "TV Box"
+options:
+  host: ""
+  port: 5555
+# host: optional first box; more are added on the remote page (Find boxes)
+schema:
+  host: "str?"
+  port: port

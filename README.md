@@ -24,6 +24,18 @@ Network performance testing server. Run bandwidth tests directly from your Home 
 
 [Documentation →](./iperf3-server/README.md)
 
+### TV Box Remote
+
+Remote control for Android TV boxes and TVs over authenticated adb, in the sidebar and in the Home Assistant app on iPhone and Android.
+
+**Features:**
+- D-pad, Home, Back, Menu, volume, Sleep/Wake and typing
+- Several boxes, picked with one tap; finds them on the network
+- Uses Ethernet or Wi-Fi, whichever is up, and finds a box again after DHCP moves it
+- API for dashboard buttons, scripts and automations
+
+[Documentation →](./tvbox-remote/DOCS.md)
+
 ## Support
 
 For issues, check the add-on logs or open an issue in this repository.

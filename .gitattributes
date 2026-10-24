@@ -1,0 +1,3 @@
+# Container files need Unix line endings
+* text=auto eol=lf
+*.png binary

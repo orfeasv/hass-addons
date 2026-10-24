@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111317">
+  <title>TV Box</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="stylesheet" href="remote.css">
+</head>
+<body>
+  <main class="app">
+    <!-- Which box the remote controls: one tap to switch; the dot shows its connection -->
+    <nav class="boxes" aria-label="Boxes">
+      <div id="box-tabs" class="box-tabs" role="tablist"></div>
+      <button id="add-open" class="chip add" type="button" aria-label="Add a box" aria-expanded="false" aria-controls="add-panel">＋</button>
+    </nav>
+
+    <!-- Add a box: network scan, or an address typed in -->
+    <section id="add-panel" class="panel" hidden aria-labelledby="add-title">
+      <header class="panel-head">
+        <h2 id="add-title">Add a box</h2>
+        <button id="add-close" class="icon" type="button" aria-label="Close">✕</button>
+      </header>
+      <p id="add-empty" class="hint" hidden>No box yet. Find the boxes on your network, or type one's address. The TV then asks once to allow this remote.</p>
+      <button id="scan" class="wide" type="button">Find boxes on the network</button>
+      <p id="scan-state" class="hint" role="status" aria-live="polite"></p>
+      <ul id="found" class="found"></ul>
+      <form id="manual" class="field-row">
+        <label class="sr-only" for="manual-host">Address</label>
+        <input id="manual-host" type="text" inputmode="decimal" placeholder="Address, e.g. 192.168.1.20" autocomplete="off" required>
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <!-- Remote for the selected box -->
+    <section id="remote" class="remote" aria-labelledby="box-title" hidden>
+      <header class="remote-head">
+        <div>
+          <h1 id="box-title">TV Box</h1>
+          <p id="box-state" class="state" role="status" aria-live="polite"></p>
+        </div>
+        <button id="manage-open" class="icon" type="button" aria-label="Rename or remove this box" aria-expanded="false" aria-controls="manage-panel">⋯</button>
+      </header>
+
+      <section id="manage-panel" class="panel" hidden aria-label="Box settings">
+        <form id="rename" class="field-row">
+          <label class="sr-only" for="rename-name">Name</label>
+          <input id="rename-name" type="text" maxlength="40" autocomplete="off" required>
+          <button type="submit">Rename</button>
+        </form>
+        <p id="box-address" class="hint"></p>
+        <button id="remove" class="wide danger" type="button">Remove this box</button>
+      </section>
+
+      <p id="approval" class="notice" hidden>On the TV, tick “Always allow from this computer” and choose Allow.</p>
+
+      <div class="row two">
+        <button data-key="sleep" class="pill">Sleep</button>
+        <button data-key="wake" class="pill">Wake</button>
+      </div>
+
+      <div class="dpad" role="group" aria-label="Direction pad">
+        <button data-key="up" class="up" aria-label="Up">▲</button>
+        <button data-key="left" class="left" aria-label="Left">◀</button>
+        <button data-key="ok" class="ok">OK</button>
+        <button data-key="right" class="right" aria-label="Right">▶</button>
+        <button data-key="down" class="down" aria-label="Down">▼</button>
+      </div>
+
+      <div class="row">
+        <button data-key="back" aria-label="Back">↩</button>
+        <button data-key="home" aria-label="Home">⌂</button>
+        <button data-key="menu" aria-label="Menu">☰</button>
+      </div>
+
+      <div class="row">
+        <button data-key="volume_down" aria-label="Volume down">−</button>
+        <button data-key="mute" aria-label="Mute">🔇</button>
+        <button data-key="volume_up" aria-label="Volume up">+</button>
+      </div>
+
+      <form id="type" class="field-row">
+        <label class="sr-only" for="text">Text to type on the TV</label>
+        <input id="text" type="text" placeholder="Type on the TV" autocomplete="off" enterkeyhint="send">
+        <button type="submit">Send</button>
+      </form>
+    </section>
+
+    <p id="toast" class="toast" role="alert" hidden></p>
+  </main>
+  <script type="module" src="remote.js"></script>
+</body>
+</html>

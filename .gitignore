@@ -1,0 +1,4 @@
+node_modules/
+# adb keys must never be committed
+*.pem
+.devdata/
