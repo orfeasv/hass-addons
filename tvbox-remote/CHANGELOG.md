@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- Android TV Remote: a box can be linked to its pairing in Home Assistant's Android TV Remote integration;
+  keys then go out as `remote.send_command`, with adb as the fallback when it's unavailable
+
 ## 0.1.0
 
 - Remote page in the sidebar: D-pad, OK, Back, Home, Menu, volume, mute, Sleep, Wake, typing

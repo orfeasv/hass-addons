@@ -76,7 +76,14 @@ export function createApp({ config, boxes, publicKey, scan }) {
       });
     }
     if (m && !m[2] && req.method === 'PATCH') {
-      return run(res, async () => boxes.view(boxes.rename(m[1], (await readJson(req)).name)));
+      return run(res, async () => {
+        const { name, entity } = await readJson(req);
+        return boxes.view(boxes.update(m[1], { name, entity: entity === '' ? null : entity }));
+      });
+    }
+    if (req.method === 'GET' && route === '/api/remotes') {
+      // Android TV Remote entities in Home Assistant, for linking a box
+      return run(res, async () => ({ enabled: Boolean(boxes.ha?.enabled), remotes: boxes.ha?.enabled ? await boxes.ha.remotes() : [] }));
     }
     if (m && !m[2] && req.method === 'DELETE') return run(res, () => boxes.remove(m[1]));
     if (m && m[2] === 'key' && m[3] && req.method === 'POST') return run(res, () => press(boxes.get(m[1]), m[3]));

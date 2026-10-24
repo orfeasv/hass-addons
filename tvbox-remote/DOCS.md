@@ -29,6 +29,15 @@ Boxes appear as tabs at the top: one tap switches which box the remote controls,
 
 To revoke the add-on on a box: Settings → System → Developer options → Revoke USB debugging authorizations (this revokes every computer), or remove its line (`… tvbox-remote@homeassistant`) from `/data/misc/adb/adb_keys`. `GET api/status` returns the add-on's public key in that format.
 
+## Android TV Remote (Google TV and Android TV devices)
+
+Devices running Android TV or Google TV also speak the Android TV Remote protocol (the one the Google TV app uses, ports 6466/6467). Boxes running a phone or tablet build of Android don't have it and use adb only.
+
+1. Pair the device in Home Assistant: Settings → Devices & services → Add integration → **Android TV Remote**, then enter the code the TV shows. This creates a `remote.…` entity.
+2. In TV Box, select the box, open **⋯** and pick that entity under **Android TV Remote**.
+
+Keys for that box then go out as `remote.send_command` through Home Assistant's API (`homeassistant_api: true`). When the entity is unavailable or a call fails, the add-on uses adb for that key, so the box keeps working. Typing always uses adb. The status line shows "Keys via Android TV Remote" while that path is in use.
+
 ## Options
 
 | Option | Default | Meaning |
@@ -49,6 +58,8 @@ Keys: `up down left right ok back home menu volume_up volume_down mute backspace
 | `POST /api/key/<key>` (optionally `?box=<id>`) | Short form: the first box, or the one given |
 | `POST /api/text` (optionally `?box=<id>`) | Short form for typing |
 | `GET /api/boxes` | The boxes, with their `id` and connection state |
+| `PATCH /api/boxes/<id>` with `{"name": "…"}` and/or `{"entity": "remote.…"}` | Renames a box; links it to an Android TV Remote entity (`null` unlinks) |
+| `GET /api/remotes` | Home Assistant's `remote.*` entities |
 
 Add a `rest_command` in `configuration.yaml`:
 

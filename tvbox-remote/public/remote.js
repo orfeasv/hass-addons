@@ -47,9 +47,14 @@ async function api(method, url, body) {
 }
 
 const selected = () => boxes.find((b) => b.id === selectedId);
-const stateOf = (box) => (box.connected ? 'on' : box.awaitingApproval ? 'wait' : '');
-const stateText = (box) => (box.connected ? `Connected${box.via ? ` via ${box.via}` : ''}`
-  : box.awaitingApproval ? 'Waiting for approval on the TV' : 'Not connected');
+// A box linked to Android TV Remote is usable through it even while adb is down
+const viaAtv = (box) => box.entity && box.route === 'atv';
+const stateOf = (box) => (box.connected || viaAtv(box) ? 'on' : box.awaitingApproval ? 'wait' : '');
+const stateText = (box) => {
+  const adb = box.connected ? `Connected${box.via ? ` via ${box.via}` : ''}`
+    : box.awaitingApproval ? 'Waiting for approval on the TV' : 'adb not connected';
+  return viaAtv(box) ? `Keys via Android TV Remote · ${adb}` : adb;
+};
 
 function select(id) {
   selectedId = id;
@@ -185,7 +190,41 @@ $('manual').addEventListener('submit', async (event) => {
 });
 
 // --- managing the selected box ---
-manageOpen.addEventListener('click', () => setPanel(managePanel, manageOpen, managePanel.hidden));
+manageOpen.addEventListener('click', () => {
+  const open = managePanel.hidden;
+  setPanel(managePanel, manageOpen, open);
+  if (open) loadRemotes();
+});
+
+/** Fills the Android TV Remote choice with Home Assistant's remote entities. */
+async function loadRemotes() {
+  const selectEl = $('atv-entity');
+  const box = selected();
+  if (!box) return;
+  try {
+    const { enabled, remotes } = await api('GET', 'api/remotes');
+    $('atv-row').hidden = !enabled;
+    const options = [{ entity: '', name: 'Not used (adb only)' }, ...remotes];
+    // keep a linked entity listed even if Home Assistant doesn't report it right now
+    if (box.entity && !remotes.some((r) => r.entity === box.entity)) options.push({ entity: box.entity, name: `${box.entity} (not found)` });
+    selectEl.replaceChildren(...options.map((r) => Object.assign(document.createElement('option'), {
+      value: r.entity, textContent: r.state === 'unavailable' ? `${r.name} (unavailable)` : r.name,
+    })));
+    selectEl.value = box.entity ?? '';
+  } catch (err) {
+    $('atv-row').hidden = true;
+    toast(`Android TV Remote list: ${err.message}`);
+  }
+}
+
+$('atv-entity').addEventListener('change', async (event) => {
+  try {
+    await api('PATCH', `api/boxes/${selectedId}`, { entity: event.target.value || null });
+    refresh();
+  } catch (err) {
+    toast(err.message);
+  }
+});
 
 $('rename').addEventListener('submit', async (event) => {
   event.preventDefault();

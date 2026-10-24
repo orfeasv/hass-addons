@@ -1,7 +1,8 @@
 // Remote keys. On first use per connection the box is examined: the input device that best covers the remote's keys
 // is picked, and each key is mapped through that device's own key layout (so layout overrides are respected).
 // Keys found there are written as raw input events into the device (~15 ms on the box); the rest, and Sleep/Wake,
-// go through Android's `input keyevent` (~1 s).
+// go through Android's `input keyevent` (~1 s). A box linked to an Android TV Remote pairing sends keys that way
+// first, and uses adb when that is unavailable.
 
 /** Remote keys and the Android key each one means (first match wins). */
 export const KEYS = Object.freeze({
@@ -93,10 +94,18 @@ function shellQuote(value) {
 }
 
 export class Remote {
-  /** @param {{adb: {shell(cmd: string): Promise<string>, connected: boolean, banner: string|null}, log?: (msg: string) => void}} options */
-  constructor({ adb, log = () => {} }) {
+  /**
+   * @param {{adb: {shell(cmd: string): Promise<string>, connected: boolean}, log?: (msg: string) => void,
+   *   atv?: {send(androidKey: string): Promise<boolean>}}} options
+   * atv: the box's Android TV Remote pairing (through Home Assistant), tried first; send() returns false when the
+   * box has none or it is unavailable.
+   */
+  constructor({ adb, log = () => {}, atv = null }) {
     this.adb = adb;
     this.log = log;
+    this.atv = atv;
+    /** 'atv' or 'adb': how the last key went out */
+    this.route = null;
     this.prepared = false;
     this.device = null; // {name, path}
     this.codes = {}; // remote key → Linux key code on that device
@@ -133,6 +142,17 @@ export class Remote {
   /** @param {string} name */
   async press(name) {
     if (!Object.hasOwn(KEYS, name)) throw new RangeError(`unknown key: ${name}`);
+    if (this.atv) {
+      try {
+        if (await this.atv.send(KEYS[name][0])) {
+          this.route = 'atv';
+          return;
+        }
+      } catch (err) {
+        this.log(`Android TV Remote failed (${err.message}): using adb`);
+      }
+    }
+    this.route = 'adb';
     await this.prepare();
     const code = this.codes[name];
     // dd writes the whole press in one write(); the evdev node rejects partial events

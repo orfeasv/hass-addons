@@ -8,6 +8,7 @@ import { androidPublicKey } from './adb.js';
 import { createApp } from './app.js';
 import { Boxes } from './boxes.js';
 import { loadConfig } from './config.js';
+import { homeAssistantFromEnv } from './ha.js';
 import { scan } from './scan.js';
 
 const config = loadConfig();
@@ -27,7 +28,8 @@ const publicKey = androidPublicKey(crypto.createPublicKey(privateKey), keyName);
 let scanning = null;
 const sharedScan = () => (scanning ??= scan({ port: config.boxPort }).finally(() => { scanning = null; }));
 
-const boxes = new Boxes({ file: config.boxesFile, privateKey, keyName, scan: sharedScan });
+const ha = homeAssistantFromEnv();
+const boxes = new Boxes({ file: config.boxesFile, privateKey, keyName, scan: sharedScan, ha });
 boxes.load(config.boxHost, config.boxPort);
 
 const app = createApp({ config, boxes, publicKey, scan: sharedScan });

@@ -1,6 +1,6 @@
 {
   "name": "tvbox-remote",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Remote control for an Android TV box over adb, packaged as a Home Assistant add-on",
   "private": true,
   "type": "module",

@@ -1,6 +1,6 @@
 name: "TV Box Remote"
 description: "Remote control for Android TV boxes and TVs over authenticated adb: D-pad, Home, Back, volume, sleep and typing, in the sidebar and as an API"
-version: "0.1.0"
+version: "0.2.0"
 slug: "tvbox_remote"
 init: false
 arch:
@@ -15,6 +15,8 @@ ingress: true
 ingress_port: 3400
 # host network: the box scan needs the real LAN, not the add-on network; the page and API are also on <host>:3400
 host_network: true
+# Home Assistant API: keys for boxes paired in the Android TV Remote integration go out as remote.send_command
+homeassistant_api: true
 panel_icon: "mdi:remote-tv"
 panel_title: "TV Box"
 options:

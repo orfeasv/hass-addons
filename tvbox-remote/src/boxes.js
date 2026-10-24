@@ -1,5 +1,6 @@
 // The boxes the remote controls, saved in boxes.json. A box is one device (serial number) with one or more network
-// links (Ethernet, Wi-Fi); every box uses the add-on's single adb key, whichever link it is reached over.
+// links (Ethernet, Wi-Fi); every box uses the add-on's single adb key, whichever link it is reached over. A box can
+// also be linked to its Android TV Remote pairing in Home Assistant (a remote.* entity), which is then tried first.
 import { randomBytes } from 'node:crypto';
 import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { AdbClient } from './adb.js';
@@ -8,6 +9,7 @@ import { neighbors as readNeighbors } from './neighbors.js';
 import { Remote } from './remote.js';
 
 export const HOST_RE = /^[a-zA-Z0-9.-]{1,253}$/; // IPv4 address or host name
+export const ENTITY_RE = /^remote\.[a-z0-9_]+$/;
 const NAME_MAX = 40;
 
 /** @param {unknown} name @param {string} fallback */
@@ -24,6 +26,7 @@ function normalizeRecord(raw) {
     id: raw.id, name: raw.name, serial: raw.serial ?? null, port: Number(raw.port) || 5555,
     links: links.map((l) => ({ iface: l.iface ?? null, mac: l.mac ?? null, ip: l.ip ?? null })),
     last: raw.last ?? links[0]?.ip ?? null,
+    entity: ENTITY_RE.test(raw.entity ?? '') ? raw.entity : null,
   };
 }
 
@@ -31,10 +34,11 @@ export class Boxes {
   /**
    * @param {{file: string, privateKey: import('node:crypto').KeyObject, keyName: string,
    *   createClient?: (options: object) => AdbClient, neighbors?: () => Promise<Map<string, string>>,
-   *   scan?: () => Promise<unknown>, log?: (msg: string) => void}} options
+   *   scan?: () => Promise<unknown>, ha?: import('./ha.js').HomeAssistant, log?: (msg: string) => void}} options
    */
   constructor({ file, privateKey, keyName, createClient = (o) => new AdbClient(o), neighbors = readNeighbors,
-    scan = async () => [], log = console.log }) {
+    scan = async () => [], ha = null, log = console.log }) {
+    this.ha = ha;
     this.file = file;
     this.privateKey = privateKey;
     this.keyName = keyName;
@@ -68,7 +72,13 @@ export class Boxes {
     const client = this.createClient({ host: record.last, port: record.port, privateKey: this.privateKey, keyName: this.keyName });
     const link = new BoxLink({ record, client, neighbors: this.neighbors, scan: this.scan, log,
       onIdentity: () => this.identified(record.id) });
-    const box = { id: record.id, name, record, link, remote: new Remote({ adb: link, log }), model: null };
+    // Android TV Remote through Home Assistant, when this box is linked to an available remote entity
+    const atv = { send: async (androidKey) => {
+      if (!record.entity || !this.ha?.enabled || !(await this.ha.available(record.entity))) return false;
+      await this.ha.sendCommand(record.entity, androidKey);
+      return true;
+    } };
+    const box = { id: record.id, name, record, link, remote: new Remote({ adb: link, log, atv }), model: null };
     this.boxes.set(record.id, box);
     this.connect(box);
     return box;
@@ -141,9 +151,14 @@ export class Boxes {
     return box;
   }
 
-  rename(id, name) {
+  /** Renames a box and/or links it to an Android TV Remote entity (null unlinks). */
+  update(id, { name, entity }) {
     const box = this.get(id);
-    box.name = cleanName(name, box.record.links[0]?.ip ?? box.name);
+    if (name !== undefined) box.name = cleanName(name, box.record.links[0]?.ip ?? box.name);
+    if (entity !== undefined) {
+      if (entity !== null && !ENTITY_RE.test(entity)) throw new RangeError('invalid entity');
+      box.record.entity = entity;
+    }
     this.save();
     return box;
   }
@@ -164,6 +179,7 @@ export class Boxes {
       via: linkLabel(link.via),
       links: record.links.map((l) => ({ type: linkLabel(l.iface), ip: l.ip, mac: l.mac })),
       connected: link.connected, awaitingApproval: link.awaitingApproval,
+      entity: record.entity, route: box.remote.route,
     };
   }
 

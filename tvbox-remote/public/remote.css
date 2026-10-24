@@ -52,7 +52,20 @@ button {
   touch-action: manipulation;
 }
 button:active, button.pressed { background: var(--key-active); }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+select {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 10px;
+  background: var(--key);
+  color: var(--text);
+  font: inherit;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 14px; color: var(--muted); }
 button:disabled { opacity: 0.5; cursor: default; }
 button.failed { outline: 2px solid var(--danger); }
 

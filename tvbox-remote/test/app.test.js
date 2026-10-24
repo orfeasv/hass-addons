@@ -30,7 +30,7 @@ test('boxes are saved, de-duplicated, renamed and removed', async () => {
   assert.equal(boxes.add({ host: '10.0.0.5', port: 5555 }).id, a.id);
   boxes.add({ host: '10.0.0.6', name: '  Living   room ' });
   assert.deepEqual(boxes.list().map((b) => b.name), ['10.0.0.5', 'Living room']);
-  boxes.rename(a.id, '');
+  boxes.update(a.id, { name: '' });
   assert.equal(boxes.get(a.id).name, '10.0.0.5'); // empty name falls back to the address
   boxes.remove(a.id);
   await tick();
